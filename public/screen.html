@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Money Maze · Screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Press+Start+2P&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/theme.css">
+  <style>
+    html, body { height: 100%; overflow: hidden; }
+    .stage { height: 100vh; display: grid; grid-template-rows: auto 1fr 46px; gap: 14px; padding: 18px 22px 0; }
+
+    .top { display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 28px; }
+    .brand .logo { font-size: clamp(40px, 5.4vw, 92px); margin-top: 6px; }
+    .talk-title { font-size: clamp(16px, 1.6vw, 28px); font-weight: 700; color: var(--cream); max-width: 26ch; line-height: 1.2; margin-bottom: 8px; }
+    .stats { display: flex; gap: clamp(16px, 2.4vw, 44px); }
+    .stat { text-align: center; }
+    .stat b { display: block; font-family: var(--font-pixel); font-weight: 400; font-size: clamp(22px, 2.6vw, 44px); color: var(--gold); }
+    .stat span { font-size: 13px; color: var(--muted); }
+
+    .board { display: grid; grid-template-columns: 1fr clamp(300px, 24vw, 420px); gap: 18px; min-height: 0; }
+    .maze-wrap { position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; background: rgba(12, 42, 49, 0.55); border: 2px solid var(--line); border-radius: 22px; overflow: hidden; }
+    canvas { display: block; }
+
+    .toasts { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); display: grid; gap: 8px; justify-items: center; pointer-events: none; }
+    .toast { font-family: var(--font-pixel); font-size: 12px; background: rgba(6, 22, 27, 0.9); border: 2px solid var(--green); color: var(--ink); padding: 10px 16px; border-radius: 999px; animation: drop 4s forwards; }
+    @keyframes drop { 0% { opacity: 0; transform: translateY(-10px); } 8%, 85% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+
+    .qcard {
+      position: absolute; left: 3%; right: 3%; bottom: 4%;
+      background: var(--cream); color: var(--cream-ink); border-radius: 26px; padding: clamp(18px, 2.4vw, 40px);
+      border-bottom: 8px solid var(--pink); box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      transform: translateY(130%); transition: transform 0.55s cubic-bezier(.2, .9, .3, 1.15);
+    }
+    .qcard.show { transform: none; }
+    .qcard .eyebrow { color: #b0477a; }
+    .qcard h2 { font-size: clamp(26px, 3.3vw, 60px); line-height: 1.15; margin: 14px 0 18px; overflow-wrap: anywhere; }
+    .qcard .by { display: flex; align-items: center; gap: 10px; font-family: var(--font-pixel); font-size: 12px; letter-spacing: 0.12em; color: #6d5a45; }
+    .qcard .dot { width: 14px; height: 14px; border-radius: 3px; }
+
+    .side { display: grid; grid-template-rows: auto 1fr auto; gap: 14px; min-height: 0; }
+    .card { background: var(--panel); border: 2px solid var(--line); border-radius: 20px; padding: 16px 18px; min-height: 0; }
+    .qr-card { background: var(--pink); border-color: var(--pink); color: #2b0b1c; display: flex; gap: 16px; align-items: center; }
+    .qr-card img { width: clamp(110px, 9vw, 160px); aspect-ratio: 1; background: #fff; border-radius: 12px; padding: 6px; }
+    .qr-card h2 { margin: 0 0 4px; font-size: clamp(20px, 1.7vw, 30px); }
+    .qr-card p { margin: 0 0 8px; font-weight: 500; }
+    .qr-card code { font-size: 11px; word-break: break-all; opacity: 0.8; }
+    .card-head { display: flex; justify-content: space-between; font-family: var(--font-pixel); font-size: 10px; letter-spacing: 0.14em; color: var(--green); text-transform: uppercase; margin-bottom: 10px; }
+
+    .leaders { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; overflow: hidden; }
+    .leaders li { display: grid; grid-template-columns: 22px 14px 1fr auto; align-items: center; gap: 10px; font-size: clamp(14px, 1.05vw, 18px); font-weight: 500; padding: 4px 0; }
+    .leaders .rank { font-family: var(--font-pixel); font-size: 10px; color: var(--muted); }
+    .leaders .sw { width: 14px; height: 14px; border-radius: 3px; }
+    .leaders .nm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .leaders .pts { font-family: var(--font-pixel); font-size: 11px; color: var(--gold); min-width: 44px; text-align: right; }
+    .leaders li.lead .nm { color: var(--gold); }
+    .empty { color: var(--muted); font-size: 14px; }
+
+    .funds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .fund { border: 2px dashed var(--line); border-radius: 14px; padding: 8px 4px; text-align: center; color: var(--muted); transition: all 0.4s; }
+    .fund b { display: block; font-family: var(--font-pixel); font-weight: 400; font-size: 16px; margin-bottom: 6px; }
+    .fund span { font-size: 12px; }
+    .fund.on { border-style: solid; border-color: var(--gold); color: var(--gold); background: rgba(255, 201, 74, 0.08); box-shadow: 0 0 18px rgba(255, 201, 74, 0.2); }
+    .fund.pop { animation: pop 0.8s; }
+    @keyframes pop { 40% { transform: scale(1.15); } }
+
+    .ticker { position: relative; overflow: hidden; display: flex; align-items: center; border-top: 2px solid var(--line); margin: 0 -22px; background: #04100f; }
+    .ticker-track { display: inline-flex; white-space: nowrap; font-family: var(--font-pixel); font-size: 12px; animation: scroll linear infinite; padding-left: 100%; }
+    .ticker-track span { margin-right: 40px; }
+    .ticker .up { color: var(--green); }
+    @keyframes scroll { to { transform: translateX(-100%); } }
+    .fs-btn { position: absolute; right: 10px; background: var(--panel); color: var(--muted); border: 1px solid var(--line); border-radius: 8px; font: inherit; font-size: 12px; padding: 6px 10px; cursor: pointer; }
+    :fullscreen .fs-btn { display: none; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <header class="top">
+      <div class="brand">
+        <div class="eyebrow" id="eventName"></div>
+        <h1 class="logo" id="gameTitle">MONEY MAZE</h1>
+      </div>
+      <div>
+        <div class="talk-title" id="talkTitle"></div>
+        <div class="eyebrow" id="speaker"></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="statQ">0</b><span>questions</span></div>
+        <div class="stat"><b id="statP">0</b><span>investors</span></div>
+        <div class="stat"><b id="statC">$0</b><span>coins saved</span></div>
+      </div>
+    </header>
+
+    <main class="board">
+      <section class="maze-wrap" id="mazeWrap">
+        <canvas id="maze"></canvas>
+        <div class="toasts" id="toasts"></div>
+        <div class="qcard" id="qcard">
+          <div class="eyebrow">Question on screen</div>
+          <h2 id="qText"></h2>
+          <div class="by"><span class="dot" id="qDot"></span><span id="qBy"></span></div>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="card qr-card">
+          <img src="/qr.svg" alt="QR code to join">
+          <div>
+            <h2>Scan &amp; ask</h2>
+            <p>Ask a question, join the game</p>
+            <code id="url"></code>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span>Leaderboard</span><span>PTS</span></div>
+          <ol class="leaders" id="leaders"></ol>
+        </div>
+        <div class="card">
+          <div class="card-head"><span>Dashboard fundamentals</span><span id="fundCount">0/6</span></div>
+          <div class="funds" id="funds"></div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="ticker">
+      <div class="ticker-track" id="ticker"></div>
+      <button class="fs-btn" id="fsBtn">Fullscreen</button>
+    </footer>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/sprites.js"></script>
+  <script src="/screen.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+node_modules/
+data/
+deploy/host-key.txt
+.claude/
+# reference photos and the original logo are not needed by the app
+*.JPG
+*.jpg
+*.PNG
+*.png

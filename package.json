@@ -1,0 +1,17 @@
+{
+  "name": "money-maze",
+  "version": "1.0.0",
+  "description": "Live audience Q&A game for talks: scan a QR, ask a question, become a piggy bank in the Money Maze.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.1"
+  }
+}
