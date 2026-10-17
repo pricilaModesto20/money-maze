@@ -6,8 +6,6 @@
   $('gameTitle').textContent = cfg.gameTitle;
   $('talkTitle').textContent = cfg.talkTitle;
   $('speaker').textContent = 'with ' + cfg.speakerName;
-  const first = cfg.speakerName.split(' ')[0];
-  $('qLabel').textContent = cfg.speakerName === 'Your Name' ? 'Ask a question' : `Ask ${first} a question`;
   $('q').maxLength = cfg.maxQuestionLength;
   $('counter').textContent = `0/${cfg.maxQuestionLength}`;
   for (const r of cfg.roles) $('role').append(new Option(r, r));
