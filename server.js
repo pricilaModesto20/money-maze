@@ -258,7 +258,8 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
+// BIND=127.0.0.1 when a reverse proxy (Caddy) handles HTTPS in front of the app
+server.listen(PORT, process.env.BIND || undefined, () => {
   console.log('\n  MONEY MAZE is running\n');
   console.log(`  Audience (QR code):  ${PUBLIC_URL}`);
   console.log(`  Projector screen:    http://localhost:${PORT}/screen`);
