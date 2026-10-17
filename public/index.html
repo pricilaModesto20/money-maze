@@ -65,6 +65,9 @@
     .follow { display: flex; align-items: center; justify-content: space-between; background: var(--cream); color: var(--cream-ink); border: 0; text-decoration: none; font-size: 17px; }
     .follow span { font-size: 24px; }
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--gold); color: #06161b; font-weight: 700; padding: 12px 20px; border-radius: 999px; box-shadow: 0 8px 30px rgba(0,0,0,.4); }
+    .save-overlay { position: fixed; inset: 0; z-index: 10; background: rgba(6, 22, 27, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px 16px; text-align: center; }
+    .save-overlay p { margin: 0; font-size: 18px; color: var(--cream); }
+    .save-overlay img { max-width: 100%; max-height: 65vh; -webkit-touch-callout: default; }
   </style>
 </head>
 <body>
@@ -101,8 +104,14 @@
     <section class="card badge" id="badgeCard" hidden>
       <div class="eyebrow">Badge unlocked · add it to LinkedIn</div>
       <img id="badgeImg" alt="Your Money Maze badge">
-      <a class="btn ghost" id="download" download="money-maze-badge.png">Download badge</a>
+      <button class="btn ghost" type="button" id="download">Download badge</button>
     </section>
+
+    <div class="save-overlay" id="saveOverlay" hidden>
+      <p><b>Press and hold the badge</b>, then tap <b>Save to Photos</b>.</p>
+      <img id="saveImg" alt="Your badge">
+      <button class="btn" type="button" id="saveClose">Done</button>
+    </div>
 
     <a class="card follow" id="follow" target="_blank" rel="noopener" hidden>
       <b>Follow <span id="followName"></span> on LinkedIn</b><span>→</span>

@@ -71,15 +71,47 @@
       lastBadgeKey = key;
       const svg = badgeSvg({ ...me, eventName: cfg.eventName, gameTitle: cfg.gameTitle, talkTitle: cfg.talkTitle });
       try {
-        const png = await svgToPng(svg);
-        $('badgeImg').src = png;
-        $('download').href = png;
+        $('badgeImg').src = await svgToPng(svg);
       } catch {
         $('badgeImg').src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
       }
       $('badgeCard').hidden = false;
     }
   }
+
+  // Saving the badge: phones handle downloads differently, so try the best option for each.
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  function showSaveOverlay(src) {
+    $('saveImg').src = src;
+    $('saveOverlay').hidden = false;
+  }
+  $('saveClose').addEventListener('click', () => { $('saveOverlay').hidden = true; });
+  $('download').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const src = $('badgeImg').src;
+    if (!src) return;
+    try {
+      const blob = await (await fetch(src)).blob();
+      const file = new File([blob], 'cyberweek-badge.png', { type: blob.type });
+      if (navigator.canShare?.({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'My CyberWeek badge' });
+          return;
+        } catch (err) {
+          if (err.name === 'AbortError') return;
+        }
+      }
+      if (isIOS) return showSaveOverlay(src);
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: 'cyberweek-badge.png' });
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch {
+      showSaveOverlay(src);
+    }
+  });
 
   const socket = io();
   socket.on('connect', () => socket.emit('hello', { clientId }, renderMe));
