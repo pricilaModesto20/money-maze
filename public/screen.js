@@ -317,7 +317,7 @@
     [...players.entries()].sort((a, b) => posOf(a[1])[1] - posOf(b[1])[1]).forEach(([id, p]) => drawPlayer(id, p, now));
     drawPopups(now);
 
-    if (coinsDirty) { $('statC').textContent = '$' + coinsSaved.toLocaleString(); coinsDirty = false; }
+    if (coinsDirty) { $('statC').textContent = coinsSaved.toLocaleString(); coinsDirty = false; }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
@@ -341,7 +341,7 @@
     if (!list.length) {
       const li = document.createElement('li');
       li.className = 'empty';
-      li.textContent = 'Scan the QR code to be the first investor!';
+      li.textContent = 'Scan the QR code to be the first AI Builder!';
       ol.append(li);
       return;
     }
